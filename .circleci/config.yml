@@ -1,20 +1,27 @@
-version: 2
+version: 2.1
 jobs:
-  stamp:
-    parameters:
-      master_branch:
-        type: boolean
-        default: false
+  stamp_develop:
     docker:
       - image: circleci/node:10
     steps:
       - checkout
-      - unless:
-          condition: << parameters.master_branch >>
-          steps:
-            - run:
-                name: Stamp Build on Version
-                command: sed -i "s/-dev/-${CIRCLE_BUILD_NUM}/g" package.json
+      - run:
+          name: Stamp Build on Version
+          command: sed -i "s/-dev/-${CIRCLE_BUILD_NUM}/g" package.json
+      - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - package.json
+            - .npmrc
+  stamp_release:
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - run:
+          name: Trim Version
+          command: sed -i "s/-dev//g" package.json
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
       - persist_to_workspace:
           root: ./
@@ -41,25 +48,23 @@ workflows:
   version: 2
   publish:
     jobs:
-      - stamp:
-          master_branch: false
+      - stamp_develop:
           filters:
             branches:
               only: develop
-      - stamp:
-          master_branch: true
+      - stamp_release:
           filters:
             branches:
               only: master
       - publish_develop:
           requires:
-            - stamp
+            - stamp_develop
           filters:
             branches:
               only: develop
       - publish_master:
           requires:
-            - stamp
+            - stamp_release
           filters:
             branches:
               only: master
