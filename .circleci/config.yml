@@ -1,11 +1,20 @@
 version: 2
 jobs:
   stamp:
+    parameters:
+      master_branch:
+        type: boolean
+        default: false
     docker:
       - image: circleci/node:10
     steps:
       - checkout
-      - run: sed -i "s/-dev/-${CIRCLE_BUILD_NUM}/g" package.json
+      - unless:
+          condition: << parameters.master_branch >>
+          steps:
+            - run:
+                name: Stamp Build on Version
+                command: sed -i "s/-dev/-${CIRCLE_BUILD_NUM}/g" package.json
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
       - persist_to_workspace:
           root: ./
@@ -32,7 +41,16 @@ workflows:
   version: 2
   publish:
     jobs:
-      - stamp
+      - stamp:
+          master_branch: false
+          filters:
+            branches:
+              only: develop
+      - stamp:
+          master_branch: true
+          filters:
+            branches:
+              only: master
       - publish_develop:
           requires:
             - stamp
