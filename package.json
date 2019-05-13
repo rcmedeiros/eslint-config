@@ -1,0 +1,19 @@
+{
+  "name": "@rcmedeiros/eslint-config",
+  "version": "1.0.0-dev",
+  "description": "ESLint Template",
+  "main": "eslint.json",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rcmedeiros/eslint-config.git"
+  },
+  "peerDependencies": {
+    "eslint": ">= 3"
+  },
+  "keywords": [
+    "eslint",
+    "template"
+  ],
+  "author": "Rafael Medeiros <rafael@rafaelmedeiros.eti.br>",
+  "license": "AGPL-3.0-or-later"
+}
