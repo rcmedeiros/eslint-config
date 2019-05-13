@@ -1,6 +1,6 @@
 # eslint-config
 
-My personal set of ESLint rules.
+Set of ESLint rules.
 
 ## Install
 
